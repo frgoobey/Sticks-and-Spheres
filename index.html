@@ -868,56 +868,52 @@ socket.on('playerDisconnected', (id) => {
         console.log(`Removed ghost for player: ${id}`);
     }
 });
-    // --- 11. CAMERA & ZOOM SYSTEM ---
-// Only declare these ONCE
-let zoomDistance = 15; 
+    // --- 11. ROBLOX CAMERA & ZOOM SYSTEM ---
+// Make sure these are only declared ONCE in your whole file
+if (typeof zoomDistance === 'undefined') {
+    var zoomDistance = 15; 
+}
 const minZoom = 5;      
 const maxZoom = 40;     
 
-// 1. Listen for mouse scroll (Updates the distance variable)
 window.addEventListener('wheel', (event) => {
     zoomDistance += event.deltaY * 0.05;
     zoomDistance = Math.max(minZoom, Math.min(maxZoom, zoomDistance));
 }, { passive: true });
 
-// 2. Setup OrbitControls for Right-Click rotation
-// Make sure this comes AFTER your renderer and camera are created
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enablePan = false;   
-controls.enableZoom = false; // We use our custom scroll logic instead
-controls.mouseButtons = {
-    RIGHT: THREE.MOUSE.ROTATE 
-};
-
-// --- 12. THE ANIMATION LOOP ---
+// --- 12. THE FINAL ANIMATION LOOP ---
 function animate() {
     requestAnimationFrame(animate);
 
-    // Only run camera logic if the player has actually loaded
-    if (typeof player !== 'undefined' && player) {
+    // SAFETY CHECK: Only run if player, camera, and controls exist
+    if (typeof player !== 'undefined' && player && camera) {
         
-        // Calculate the Roblox-style offset (behind and slightly above)
+        // 1. Calculate the Roblox offset
         const relativeCameraOffset = new THREE.Vector3(0, zoomDistance * 0.6, zoomDistance);
         
-        // Map that offset to the player's current orientation
+        // 2. Apply player rotation to the camera position
         const cameraOffset = relativeCameraOffset.applyMatrix4(player.matrixWorld);
 
-        // Smoothly move the camera (LERP)
+        // 3. Smoothly move camera
         camera.position.lerp(cameraOffset, 0.1);
         
-        // Look at the player's head (y + 2)
+        // 4. Look at the player
         camera.lookAt(player.position.x, player.position.y + 2, player.position.z);
         
-        // Keep the rotation point centered on the player
-        controls.target.copy(player.position);
+        // 5. Sync the OrbitControls so right-click works around the player
+        if (typeof controls !== 'undefined') {
+            controls.target.copy(player.position);
+            controls.update(); 
+        }
     }
 
-    // Always update controls and render
-    controls.update(); 
-    renderer.render(scene, camera);
+    // This is the line that actually draws the screen
+    if (typeof renderer !== 'undefined' && scene && camera) {
+        renderer.render(scene, camera);
+    }
 }
 
-// Start the loop
+// Start the loop!
 animate();
     </script>
 </body>
