@@ -868,79 +868,56 @@ socket.on('playerDisconnected', (id) => {
         console.log(`Removed ghost for player: ${id}`);
     }
 });
-        // --- ZOOM SYSTEM ---
-let zoomDistance = 15; // Starting distance
-const minZoom = 5;      // Max zoom in
-const maxZoom = 40;     // Max zoom out
-
-// 1. Listen for mouse scroll
-window.addEventListener('wheel', (event) => {
-    // Adjust zoom distance based on scroll direction
-    zoomDistance += event.deltaY * 0.05;
-
-    // Clamp values so camera doesn't go through the floor or too far away
-    zoomDistance = Math.max(minZoom, Math.min(maxZoom, zoomDistance));
-});
-
-// 2. Update camera position every frame
-// We hook into the existing animation loop by adding an Interval
-// or you can move these lines into your existing animate() function
-setInterval(() => {
-    if (typeof player !== 'undefined' && camera) {
-        // Calculate the offset based on the current zoomDistance
-        const relativeCameraOffset = new THREE.Vector3(0, zoomDistance * 0.6, zoomDistance);
-        const cameraOffset = relativeCameraOffset.applyMatrix4(player.matrixWorld);
-
-        // Smoothly move camera to the offset position
-        camera.position.lerp(cameraOffset, 0.1);
-        camera.lookAt(player.position);
-    }
-}, 1000 / 60); // Run at 60fps
-
-        // --- 11. ROBLOX CAMERA & ZOOM SYSTEM ---
+    // --- 11. CAMERA & ZOOM SYSTEM ---
+// Only declare these ONCE
 let zoomDistance = 15; 
 const minZoom = 5;      
 const maxZoom = 40;     
 
-// Listen for mouse scroll to change the zoom variable
+// 1. Listen for mouse scroll (Updates the distance variable)
 window.addEventListener('wheel', (event) => {
     zoomDistance += event.deltaY * 0.05;
     zoomDistance = Math.max(minZoom, Math.min(maxZoom, zoomDistance));
-});
+}, { passive: true });
 
-// Setup OrbitControls specifically for Right-Click rotation
+// 2. Setup OrbitControls for Right-Click rotation
+// Make sure this comes AFTER your renderer and camera are created
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enablePan = false;   // Disable moving side-to-side with mouse
-controls.enableZoom = false;  // Disable default zoom (we are using our custom one)
+controls.enablePan = false;   
+controls.enableZoom = false; // We use our custom scroll logic instead
 controls.mouseButtons = {
-    RIGHT: THREE.MOUSE.ROTATE // Right click to look around
+    RIGHT: THREE.MOUSE.ROTATE 
 };
 
 // --- 12. THE ANIMATION LOOP ---
 function animate() {
     requestAnimationFrame(animate);
 
-    if (player) {
-        // 1. Position the camera behind the player based on zoomDistance
+    // Only run camera logic if the player has actually loaded
+    if (typeof player !== 'undefined' && player) {
+        
+        // Calculate the Roblox-style offset (behind and slightly above)
         const relativeCameraOffset = new THREE.Vector3(0, zoomDistance * 0.6, zoomDistance);
         
-        // 2. This makes the camera stay behind the player even when they turn
+        // Map that offset to the player's current orientation
         const cameraOffset = relativeCameraOffset.applyMatrix4(player.matrixWorld);
 
-        // 3. Smoothly move camera to that position
+        // Smoothly move the camera (LERP)
         camera.position.lerp(cameraOffset, 0.1);
         
-        // 4. Look at the player's head area
+        // Look at the player's head (y + 2)
         camera.lookAt(player.position.x, player.position.y + 2, player.position.z);
         
-        // 5. Update controls so the Right-Click rotation works
+        // Keep the rotation point centered on the player
         controls.target.copy(player.position);
     }
 
+    // Always update controls and render
     controls.update(); 
     renderer.render(scene, camera);
 }
 
+// Start the loop
 animate();
     </script>
 </body>
