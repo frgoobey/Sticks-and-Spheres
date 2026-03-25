@@ -95,7 +95,7 @@
 
     <script>
         // --- 1. INITIALIZATION ---
-        const socket = io();
+        const socket = io("https://sticks-and-spheres.onrender.com");
         const otherPlayers = {};
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -868,6 +868,34 @@ socket.on('playerDisconnected', (id) => {
         console.log(`Removed ghost for player: ${id}`);
     }
 });
+        // --- ZOOM SYSTEM ---
+let zoomDistance = 15; // Starting distance
+const minZoom = 5;      // Max zoom in
+const maxZoom = 40;     // Max zoom out
+
+// 1. Listen for mouse scroll
+window.addEventListener('wheel', (event) => {
+    // Adjust zoom distance based on scroll direction
+    zoomDistance += event.deltaY * 0.05;
+
+    // Clamp values so camera doesn't go through the floor or too far away
+    zoomDistance = Math.max(minZoom, Math.min(maxZoom, zoomDistance));
+});
+
+// 2. Update camera position every frame
+// We hook into the existing animation loop by adding an Interval
+// or you can move these lines into your existing animate() function
+setInterval(() => {
+    if (typeof player !== 'undefined' && camera) {
+        // Calculate the offset based on the current zoomDistance
+        const relativeCameraOffset = new THREE.Vector3(0, zoomDistance * 0.6, zoomDistance);
+        const cameraOffset = relativeCameraOffset.applyMatrix4(player.matrixWorld);
+
+        // Smoothly move camera to the offset position
+        camera.position.lerp(cameraOffset, 0.1);
+        camera.lookAt(player.position);
+    }
+}, 1000 / 60); // Run at 60fps
     </script>
 </body>
 </html>
