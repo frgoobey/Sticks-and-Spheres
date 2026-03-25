@@ -92,7 +92,6 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
     <script>
         // --- 1. INITIALIZATION ---
@@ -104,29 +103,6 @@
         
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
-
-        // --- 1.5 CONTROLS SETUP ---
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-
-        // --- VIEWING CONTROLS ---
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-
-        // 1. Point the camera at the player's head
-        controls.target.set(0, 2.75, 0); 
-
-        // 2. Roblox-style Mouse Mapping
-        controls.mouseButtons = {
-            LEFT: null,                  // Left click for clicking UI/World
-            MIDDLE: THREE.MOUSE.DOLLY,    // Scroll to Zoom
-            RIGHT: THREE.MOUSE.ROTATE     // Right click to Orbit (Look)
-        };
-
-        // 3. Settings for solid feel
-        controls.enableDamping = true;   // Smooth weight to the camera
-        controls.dampingFactor = 0.1;
-        controls.minDistance = 2;        // How close you can zoom (First person-ish)
-        controls.maxDistance = 30;       // How far you can zoom out
-        controls.maxPolarAngle = Math.PI / 2.1; // Prevents looking under the floor
 
         // --- 2. ENVIRONMENT DATA ---
         const skyData = 'data:image/jpeg;base64,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'; 
@@ -906,38 +882,66 @@ window.addEventListener('wheel', (event) => {
     zoomDistance = Math.max(minZoom, Math.min(maxZoom, zoomDistance));
 });
 
+// 2. Update camera position every frame
+// We hook into the existing animation loop by adding an Interval
+// or you can move these lines into your existing animate() function
+setInterval(() => {
+    if (typeof player !== 'undefined' && camera) {
+        // Calculate the offset based on the current zoomDistance
+        const relativeCameraOffset = new THREE.Vector3(0, zoomDistance * 0.6, zoomDistance);
+        const cameraOffset = relativeCameraOffset.applyMatrix4(player.matrixWorld);
+
+        // Smoothly move camera to the offset position
+        camera.position.lerp(cameraOffset, 0.1);
+        camera.lookAt(player.position);
+    }
 }, 1000 / 60); // Run at 60fps
 
-                // 12. THE ANIMATION LOOP
+        // --- 11. ROBLOX CAMERA & ZOOM SYSTEM ---
+let zoomDistance = 15; 
+const minZoom = 5;      
+const maxZoom = 40;     
+
+// Listen for mouse scroll to change the zoom variable
+window.addEventListener('wheel', (event) => {
+    zoomDistance += event.deltaY * 0.05;
+    zoomDistance = Math.max(minZoom, Math.min(maxZoom, zoomDistance));
+});
+
+// Setup OrbitControls specifically for Right-Click rotation
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enablePan = false;   // Disable moving side-to-side with mouse
+controls.enableZoom = false;  // Disable default zoom (we are using our custom one)
+controls.mouseButtons = {
+    RIGHT: THREE.MOUSE.ROTATE // Right click to look around
+};
+
+// --- 12. THE ANIMATION LOOP ---
 function animate() {
     requestAnimationFrame(animate);
 
-    // --- ZOOM & FOLLOW LOGIC (This is your "Part 2") ---
-    if (player && camera) {
-        // Calculate where the camera should be based on zoomDistance
-        // (y is height, z is distance behind player)
+    if (player) {
+        // 1. Position the camera behind the player based on zoomDistance
         const relativeCameraOffset = new THREE.Vector3(0, zoomDistance * 0.6, zoomDistance);
         
-        // This converts the offset to the player's local space (so it stays behind them)
+        // 2. This makes the camera stay behind the player even when they turn
         const cameraOffset = relativeCameraOffset.applyMatrix4(player.matrixWorld);
 
-        // lerp(0.1) makes the camera follow smoothly (elastic effect)
+        // 3. Smoothly move camera to that position
         camera.position.lerp(cameraOffset, 0.1);
         
-        // Always keep the player in the center of the screen
+        // 4. Look at the player's head area
         camera.lookAt(player.position.x, player.position.y + 2, player.position.z);
+        
+        // 5. Update controls so the Right-Click rotation works
+        controls.target.copy(player.position);
     }
 
-    // Required for the right-click "Look" to function
-    if (typeof controls !== 'undefined') {
-        controls.update(); 
-    }
-
+    controls.update(); 
     renderer.render(scene, camera);
 }
 
 animate();
-        }
     </script>
 </body>
 </html>
